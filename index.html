@@ -4,10 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Middleclick</title>
 
 ```
-<title>Image Redirect</title>
-
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -16,27 +15,32 @@
         padding: 20px;
     }
 
-    input,
-    button {
+    input {
         width: 100%;
         box-sizing: border-box;
         padding: 12px;
-        margin-top: 8px;
-        margin-bottom: 20px;
+        margin: 8px 0 20px;
     }
 
     button {
+        padding: 12px 20px;
         cursor: pointer;
     }
 
     #result {
         display: none;
-        margin-top: 20px;
+        margin-top: 30px;
+    }
+
+    #generated {
+        width: 100%;
+        box-sizing: border-box;
     }
 
     #preview {
         max-width: 100%;
         max-height: 400px;
+        margin-top: 20px;
     }
 </style>
 ```
@@ -46,16 +50,22 @@
 <body>
 
 ```
-<h1>Image Redirect</h1>
+<h1>Middleclick</h1>
 
-<label>Image</label>
+<label>
+    Image URL
+</label>
+
 <input
     id="image"
-    type="file"
-    accept="image/*"
+    type="url"
+    placeholder="https://example.com/image.png"
 >
 
-<label>Redirect URL</label>
+<label>
+    Redirect URL
+</label>
+
 <input
     id="redirect"
     type="url"
@@ -63,20 +73,25 @@
 >
 
 <button onclick="createLink()">
-    Create
+    Create Link
 </button>
 
 <div id="result">
 
-    <h2>Preview</h2>
+    <h2>Your Link</h2>
+
+    <input
+        id="generated"
+        readonly
+    >
+
+    <button onclick="copyLink()">
+        Copy Link
+    </button>
+
+    <h2>Image Preview</h2>
 
     <img id="preview">
-
-    <p>
-        Share this URL:
-    </p>
-
-    <input id="shareUrl" readonly>
 
 </div>
 ```
@@ -85,11 +100,14 @@
 
 function createLink() {
 
-    const image = document.getElementById("image").files[0];
-    const redirect = document.getElementById("redirect").value;
+    const image =
+        document.getElementById("image").value.trim();
+
+    const redirect =
+        document.getElementById("redirect").value.trim();
 
     if (!image) {
-        alert("Choose an image first.");
+        alert("Enter an image URL.");
         return;
     }
 
@@ -99,36 +117,46 @@ function createLink() {
     }
 
     try {
+        new URL(image);
         new URL(redirect);
     } catch {
-        alert("Enter a valid URL.");
+        alert("Both URLs must be valid URLs.");
         return;
     }
 
     /*
-        Create a temporary local preview.
+        CHANGE THIS to your Cloudflare Worker URL.
     */
-    const imageUrl = URL.createObjectURL(image);
 
-    document.getElementById("preview").src = imageUrl;
+    const worker =
+        "https://YOUR-WORKER.workers.dev";
 
-    /*
-        This demonstrates the URL that would be generated.
-        GitHub Pages alone cannot permanently store the
-        uploaded image.
-    */
-    const id =
-        crypto.randomUUID();
+    const generated =
+        worker +
+        "/?image=" +
+        encodeURIComponent(image) +
+        "&redirect=" +
+        encodeURIComponent(redirect);
 
-    const shareUrl =
-        window.location.origin +
-        window.location.pathname +
-        "?id=" +
-        id;
+    document.getElementById("generated").value =
+        generated;
 
-    document.getElementById("shareUrl").value = shareUrl;
+    document.getElementById("preview").src =
+        image;
 
-    document.getElementById("result").style.display = "block";
+    document.getElementById("result").style.display =
+        "block";
+}
+
+async function copyLink() {
+
+    const input =
+        document.getElementById("generated");
+
+    await navigator.clipboard.writeText(input.value);
+
+    alert("Copied!");
+
 }
 
 </script>
