@@ -1,165 +1,260 @@
+```html
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Middleclick</title>
 
-```
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        max-width: 600px;
-        margin: 60px auto;
-        padding: 20px;
-    }
+    <title>Discord Image Embed Generator</title>
 
-    input {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 12px;
-        margin: 8px 0 20px;
-    }
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
-    button {
-        padding: 12px 20px;
-        cursor: pointer;
-    }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #18191c;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
 
-    #result {
-        display: none;
-        margin-top: 30px;
-    }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: #2f3136;
+            padding: 30px;
+            border-radius: 12px;
+        }
 
-    #generated {
-        width: 100%;
-        box-sizing: border-box;
-    }
+        h1 {
+            margin-top: 0;
+        }
 
-    #preview {
-        max-width: 100%;
-        max-height: 400px;
-        margin-top: 20px;
-    }
-</style>
-```
+        label {
+            display: block;
+            margin-top: 20px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
 
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background: #202225;
+            color: white;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 13px;
+            border: none;
+            border-radius: 6px;
+            background: #5865f2;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4752c4;
+        }
+
+        #result {
+            display: none;
+            margin-top: 25px;
+        }
+
+        #generatedURL {
+            word-break: break-all;
+            padding: 12px;
+            background: #202225;
+            border-radius: 6px;
+        }
+
+        #preview {
+            max-width: 100%;
+            max-height: 400px;
+            margin-top: 20px;
+            border-radius: 6px;
+        }
+
+        .copy {
+            background: #3ba55c;
+        }
+
+        .copy:hover {
+            background: #2d7d46;
+        }
+    </style>
 </head>
 
 <body>
 
-```
-<h1>Middleclick</h1>
+<div class="container">
 
-<label>
-    Image URL
-</label>
+    <h1>Discord Image Embed</h1>
 
-<input
-    id="image"
-    type="url"
-    placeholder="https://example.com/image.png"
->
+    <p>
+        Enter an image URL and the website you want visitors
+        to be redirected to.
+    </p>
 
-<label>
-    Redirect URL
-</label>
-
-<input
-    id="redirect"
-    type="url"
-    placeholder="https://example.com"
->
-
-<button onclick="createLink()">
-    Create Link
-</button>
-
-<div id="result">
-
-    <h2>Your Link</h2>
+    <label for="imageURL">Image URL</label>
 
     <input
-        id="generated"
-        readonly
+        id="imageURL"
+        type="url"
+        placeholder="https://example.com/image.png"
     >
 
-    <button onclick="copyLink()">
-        Copy Link
+    <label for="redirectURL">Redirect URL</label>
+
+    <input
+        id="redirectURL"
+        type="url"
+        placeholder="https://example.com"
+    >
+
+    <button onclick="generate()">
+        Generate Link
     </button>
 
-    <h2>Image Preview</h2>
+    <div id="result">
 
-    <img id="preview">
+        <h3>Your Link</h3>
+
+        <div id="generatedURL"></div>
+
+        <button class="copy" onclick="copyURL()">
+            Copy Link
+        </button>
+
+        <h3>Preview</h3>
+
+        <img id="preview" alt="Preview">
+
+    </div>
 
 </div>
-```
+
 
 <script>
 
-function createLink() {
+function generate() {
 
-    const image =
-        document.getElementById("image").value.trim();
+    const imageURL =
+        document.getElementById("imageURL").value.trim();
 
-    const redirect =
-        document.getElementById("redirect").value.trim();
+    const redirectURL =
+        document.getElementById("redirectURL").value.trim();
 
-    if (!image) {
-        alert("Enter an image URL.");
+    if (!imageURL) {
+        alert("Please enter an image URL.");
         return;
     }
 
-    if (!redirect) {
-        alert("Enter a redirect URL.");
+    if (!redirectURL) {
+        alert("Please enter a redirect URL.");
         return;
     }
 
     try {
-        new URL(image);
-        new URL(redirect);
+
+        new URL(imageURL);
+        new URL(redirectURL);
+
     } catch {
-        alert("Both URLs must be valid URLs.");
+
+        alert("Please enter valid URLs.");
         return;
     }
 
-    /*
-        CHANGE THIS to your Cloudflare Worker URL.
-    */
 
-    const worker =
-        "https://YOUR-WORKER.workers.dev";
+    const baseURL =
+        window.location.origin +
+        window.location.pathname;
+
 
     const generated =
-        worker +
-        "/?image=" +
-        encodeURIComponent(image) +
+        baseURL +
+        "?image=" +
+        encodeURIComponent(imageURL) +
         "&redirect=" +
-        encodeURIComponent(redirect);
+        encodeURIComponent(redirectURL);
 
-    document.getElementById("generated").value =
+
+    document.getElementById("generatedURL").textContent =
         generated;
 
     document.getElementById("preview").src =
-        image;
+        imageURL;
 
     document.getElementById("result").style.display =
         "block";
 }
 
-async function copyLink() {
 
-    const input =
-        document.getElementById("generated");
+function copyURL() {
 
-    await navigator.clipboard.writeText(input.value);
+    const url =
+        document.getElementById("generatedURL").textContent;
 
-    alert("Copied!");
+    navigator.clipboard.writeText(url);
 
+    alert("Link copied!");
+}
+
+
+// --------------------------------------------------
+// HANDLE GENERATED LINKS
+// --------------------------------------------------
+
+const params =
+    new URLSearchParams(window.location.search);
+
+const imageURL =
+    params.get("image");
+
+const redirectURL =
+    params.get("redirect");
+
+
+if (imageURL && redirectURL) {
+
+    // Show the image while the page is open
+    document.body.innerHTML = "";
+
+    const img = document.createElement("img");
+
+    img.src = imageURL;
+
+    img.style.width = "100vw";
+    img.style.height = "100vh";
+    img.style.objectFit = "contain";
+
+    document.body.appendChild(img);
+
+
+    // Redirect after a short delay
+    setTimeout(() => {
+
+        window.location.replace(redirectURL);
+
+    }, 1000);
 }
 
 </script>
 
 </body>
 </html>
+```
