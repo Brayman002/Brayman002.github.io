@@ -1,1 +1,137 @@
-Hello
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>Image Redirect</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 60px auto;
+        padding: 20px;
+    }
+
+    input,
+    button {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px;
+        margin-top: 8px;
+        margin-bottom: 20px;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    #result {
+        display: none;
+        margin-top: 20px;
+    }
+
+    #preview {
+        max-width: 100%;
+        max-height: 400px;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+```
+<h1>Image Redirect</h1>
+
+<label>Image</label>
+<input
+    id="image"
+    type="file"
+    accept="image/*"
+>
+
+<label>Redirect URL</label>
+<input
+    id="redirect"
+    type="url"
+    placeholder="https://example.com"
+>
+
+<button onclick="createLink()">
+    Create
+</button>
+
+<div id="result">
+
+    <h2>Preview</h2>
+
+    <img id="preview">
+
+    <p>
+        Share this URL:
+    </p>
+
+    <input id="shareUrl" readonly>
+
+</div>
+```
+
+<script>
+
+function createLink() {
+
+    const image = document.getElementById("image").files[0];
+    const redirect = document.getElementById("redirect").value;
+
+    if (!image) {
+        alert("Choose an image first.");
+        return;
+    }
+
+    if (!redirect) {
+        alert("Enter a redirect URL.");
+        return;
+    }
+
+    try {
+        new URL(redirect);
+    } catch {
+        alert("Enter a valid URL.");
+        return;
+    }
+
+    /*
+        Create a temporary local preview.
+    */
+    const imageUrl = URL.createObjectURL(image);
+
+    document.getElementById("preview").src = imageUrl;
+
+    /*
+        This demonstrates the URL that would be generated.
+        GitHub Pages alone cannot permanently store the
+        uploaded image.
+    */
+    const id =
+        crypto.randomUUID();
+
+    const shareUrl =
+        window.location.origin +
+        window.location.pathname +
+        "?id=" +
+        id;
+
+    document.getElementById("shareUrl").value = shareUrl;
+
+    document.getElementById("result").style.display = "block";
+}
+
+</script>
+
+</body>
+</html>
